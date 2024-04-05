@@ -400,6 +400,8 @@ def decode_bytes(
         data["drop_item_infos"] = reader.tarray(pal_item_and_num_read)
     elif map_object_concrete_model == "PalMapObjectDeathPenaltyStorageModel":
         data["owner_player_uid"] = reader.guid()
+        if not reader.eof():
+            data["created_at"] = reader.u64()
     elif map_object_concrete_model == "PalMapObjectDefenseBulletLauncherModel":
         data["remaining_bullets"] = reader.i32()
         data["magazine_size"] = reader.i32()
@@ -490,6 +492,8 @@ def encode_bytes(p: Optional[dict[str, Any]]) -> bytes:
         writer.tarray(pal_item_and_slot_writer, p["drop_item_infos"])
     elif map_object_concrete_model == "PalMapObjectDeathPenaltyStorageModel":
         writer.guid(p["owner_player_uid"])
+        if "created_at" in p:
+            writer.u64(p["created_at"])
     elif map_object_concrete_model == "PalMapObjectDefenseBulletLauncherModel":
         writer.i32(p["remaining_bullets"])
         writer.i32(p["magazine_size"])
