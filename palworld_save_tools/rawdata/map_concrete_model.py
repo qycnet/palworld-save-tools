@@ -286,7 +286,7 @@ MAP_OBJECT_NAME_TO_CONCRETE_MODEL_CLASS: dict[str, str] = {
     "stool01_stone": "PalBuildObject",
     "stove01_stone": "PalBuildObject",
     "tablecircular01_stone": "PalBuildObject",
-    "tabledresser01_stone": "PalBuildObject",
+    "tabledresser01_stone": "PalMapObjectCharacterMakeModel",
     "tablesink01_stone": "PalBuildObject",
     "toilet01_stone": "PalBuildObject",
     "toiletholder01_stone": "PalBuildObject",
@@ -312,6 +312,15 @@ MAP_OBJECT_NAME_TO_CONCRETE_MODEL_CLASS: dict[str, str] = {
     "trafficsign03_iron": "PalBuildObject",
     "trafficsign04_iron": "PalBuildObject",
     "chair01_pal": "PalBuildObject",
+    "altar": "PalBuildObjectRaidBossSummon",
+    "copperpit": "PalMapObjectProductItemModel",
+    "copperpit_2": "PalMapObjectProductItemModel",
+    "electrichatchingpalegg": "PalMapObjectHatchingEggModel",
+    "pickupitem_cavemushroom": "PalMapObjectPickupItemOnLevelModel",
+    "treasurebox_oilrig": "PalMapObjectTreasureBoxModel",
+    "treasurebox_electric": "PalMapObjectTreasureBoxModel",
+    "treasurebox_ivy": "PalMapObjectTreasureBoxModel",
+    "treasurebox_ice": "PalMapObjectTreasureBoxModel",
 }
 NO_OP_TYPES = set(
     [
@@ -374,6 +383,8 @@ def decode_bytes(
         data["remain_product_num"] = reader.i32()
         data["requested_product_num"] = reader.i32()
         data["work_speed_additional_rate"] = reader.float()
+        if not reader.eof():
+            data["can_transport_out_product"] = reader.u32() > 0
     elif map_object_concrete_model == "PalMapObjectPickupItemOnLevelModel":
         pickup_base()
     elif map_object_concrete_model == "PalMapObjectDropItemModel":
@@ -389,6 +400,8 @@ def decode_bytes(
         data["drop_item_infos"] = reader.tarray(pal_item_and_num_read)
     elif map_object_concrete_model == "PalMapObjectDeathPenaltyStorageModel":
         data["owner_player_uid"] = reader.guid()
+        if not reader.eof():
+            data["created_at"] = reader.u64()
     elif map_object_concrete_model == "PalMapObjectDefenseBulletLauncherModel":
         data["remaining_bullets"] = reader.i32()
         data["magazine_size"] = reader.i32()
@@ -466,6 +479,8 @@ def encode_bytes(p: Optional[dict[str, Any]]) -> bytes:
         writer.i32(p["remain_product_num"])
         writer.i32(p["requested_product_num"])
         writer.float(p["work_speed_additional_rate"])
+        if "can_transport_out_product" in p:
+            writer.u32(1 if p["can_transport_out_product"] else 0)
     elif map_object_concrete_model == "PalMapObjectPickupItemOnLevelModel":
         writer.u32(1 if p["auto_picked_up"] else 0)
     elif map_object_concrete_model == "PalMapObjectDropItemModel":
@@ -477,6 +492,8 @@ def encode_bytes(p: Optional[dict[str, Any]]) -> bytes:
         writer.tarray(pal_item_and_slot_writer, p["drop_item_infos"])
     elif map_object_concrete_model == "PalMapObjectDeathPenaltyStorageModel":
         writer.guid(p["owner_player_uid"])
+        if "created_at" in p:
+            writer.u64(p["created_at"])
     elif map_object_concrete_model == "PalMapObjectDefenseBulletLauncherModel":
         writer.i32(p["remaining_bullets"])
         writer.i32(p["magazine_size"])
