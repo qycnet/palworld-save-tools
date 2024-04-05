@@ -46,6 +46,8 @@ PALWORLD_TYPE_HINTS: dict[str, str] = {
     ".worldSaveData.EnemyCampSaveData.EnemyCampStatusMap.Value": "StructProperty",
     ".worldSaveData.DungeonSaveData.DungeonSaveData.MapObjectSaveData.MapObjectSaveData.Model.EffectMap.Value": "StructProperty",
     ".worldSaveData.DungeonSaveData.DungeonSaveData.MapObjectSaveData.MapObjectSaveData.ConcreteModel.ModuleMap.Value": "StructProperty",
+    ".worldSaveData.InvaderSaveData.Key": "Guid",
+    ".worldSaveData.InvaderSaveData.Value": "StructProperty",
 }
 
 PALWORLD_CUSTOM_PROPERTIES: dict[
