@@ -286,7 +286,7 @@ MAP_OBJECT_NAME_TO_CONCRETE_MODEL_CLASS: dict[str, str] = {
     "stool01_stone": "PalBuildObject",
     "stove01_stone": "PalBuildObject",
     "tablecircular01_stone": "PalBuildObject",
-    "tabledresser01_stone": "PalBuildObject",
+    "tabledresser01_stone": "PalMapObjectCharacterMakeModel",
     "tablesink01_stone": "PalBuildObject",
     "toilet01_stone": "PalBuildObject",
     "toiletholder01_stone": "PalBuildObject",
@@ -312,6 +312,15 @@ MAP_OBJECT_NAME_TO_CONCRETE_MODEL_CLASS: dict[str, str] = {
     "trafficsign03_iron": "PalBuildObject",
     "trafficsign04_iron": "PalBuildObject",
     "chair01_pal": "PalBuildObject",
+    "altar": "PalBuildObjectRaidBossSummon",
+    "copperpit": "PalMapObjectProductItemModel",
+    "copperpit_2": "PalMapObjectProductItemModel",
+    "electrichatchingpalegg": "PalMapObjectHatchingEggModel",
+    "pickupitem_cavemushroom": "PalMapObjectPickupItemOnLevelModel",
+    "treasurebox_oilrig": "PalMapObjectTreasureBoxModel",
+    "treasurebox_electric": "PalMapObjectTreasureBoxModel",
+    "treasurebox_ivy": "PalMapObjectTreasureBoxModel",
+    "treasurebox_ice": "PalMapObjectTreasureBoxModel",
 }
 NO_OP_TYPES = set(
     [
