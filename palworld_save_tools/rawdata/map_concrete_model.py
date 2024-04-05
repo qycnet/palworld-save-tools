@@ -383,6 +383,8 @@ def decode_bytes(
         data["remain_product_num"] = reader.i32()
         data["requested_product_num"] = reader.i32()
         data["work_speed_additional_rate"] = reader.float()
+        if not reader.eof():
+            data["can_transport_out_product"] = reader.u32() > 0
     elif map_object_concrete_model == "PalMapObjectPickupItemOnLevelModel":
         pickup_base()
     elif map_object_concrete_model == "PalMapObjectDropItemModel":
@@ -475,6 +477,8 @@ def encode_bytes(p: Optional[dict[str, Any]]) -> bytes:
         writer.i32(p["remain_product_num"])
         writer.i32(p["requested_product_num"])
         writer.float(p["work_speed_additional_rate"])
+        if "can_transport_out_product" in p:
+            writer.u32(1 if p["can_transport_out_product"] else 0)
     elif map_object_concrete_model == "PalMapObjectPickupItemOnLevelModel":
         writer.u32(1 if p["auto_picked_up"] else 0)
     elif map_object_concrete_model == "PalMapObjectDropItemModel":
