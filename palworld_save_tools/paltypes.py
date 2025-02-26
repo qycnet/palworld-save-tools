@@ -10,6 +10,8 @@ from palworld_save_tools.rawdata import (
     foliage_model,
     foliage_model_instance,
     group,
+    guild_item_storage,
+    guild_lab,
     item_container,
     item_container_slots,
     map_object,
@@ -51,6 +53,10 @@ PALWORLD_TYPE_HINTS: dict[str, str] = {
     ".worldSaveData.OilrigSaveData.OilrigMap.Value": "StructProperty",
     ".worldSaveData.SupplySaveData.SupplyInfos.Key": "Guid",
     ".worldSaveData.SupplySaveData.SupplyInfos.Value": "StructProperty",
+    # 公会额外保存数据映射的键（Key）是Guid
+    ".worldSaveData.GuildExtraSaveDataMap.Key": "Guid",
+    # 公会额外保存数据映射的值（Value）是结构体属性（StructProperty）
+    ".worldSaveData.GuildExtraSaveDataMap.Value": "StructProperty",
 }
 
 PALWORLD_CUSTOM_PROPERTIES: dict[
@@ -113,13 +119,19 @@ PALWORLD_CUSTOM_PROPERTIES: dict[
         map_object.decode,
         map_object.encode,
     ),
+    # 公会额外保存数据映射中的值中的公会物品存储中的原始数据的解码和编码函数
+    ".worldSaveData.GuildExtraSaveDataMap.Value.GuildItemStorage.RawData": (
+        guild_item_storage.decode,
+        guild_item_storage.encode,
+    ),
+    # 公会额外保存数据映射中的值中的实验室中的原始数据的解码和编码函数
+    ".worldSaveData.GuildExtraSaveDataMap.Value.Lab.RawData": (
+        guild_lab.decode,
+        guild_lab.encode,
+    ),
 }
 
 # List of properties that are not working with newer versions
 DISABLED_PROPERTIES = {
     ".worldSaveData.BaseCampSaveData.Value.ModuleMap",
-    ".worldSaveData.MapObjectSaveData",
-    # Broken in v0.3.7 - memory optimisation, UObject fields encoded into raw data
-    # Parsing behaviour can be controlled with CustomVersionData
-    ".worldSaveData.ItemContainerSaveData.Value.Slots.Slots.RawData",
 }
