@@ -59,6 +59,7 @@ def decode_bytes(
         group_data |= indie
     if group_type == "EPalGroupType::Guild":
         guild = {
+            "unknown_bytes": reader.byte_list(16),
             "admin_player_uid": reader.guid(),
             "players": [],
         }
@@ -73,6 +74,10 @@ def decode_bytes(
             }
             guild["players"].append(player)
         group_data |= guild
+         # 读取并存储剩余的数据（如果有的话），将其作为原始数据存储在group_data字典的"raw_data"键下
+        remaining_data = reader.read_to_end()
+        if remaining_data:
+            group_data["raw_data"] = [b for b in remaining_data]
     if not reader.eof():
         raise Exception("Warning: EOF not reached")
     return group_data
@@ -116,11 +121,16 @@ def encode_bytes(p: dict[str, Any]) -> bytes:
         writer.i64(p["player_info"]["last_online_real_time"])
         writer.fstring(p["player_info"]["player_name"])
     if p["group_type"] == "EPalGroupType::Guild":
+        # 写入未知字节序列（可能是保留字段或特定于公会的额外数据）
+        writer.write(bytes(p["unknown_bytes"]))
         writer.guid(p["admin_player_uid"])
         writer.i32(len(p["players"]))
         for i in range(len(p["players"])):
             writer.guid(p["players"][i]["player_uid"])
             writer.i64(p["players"][i]["player_info"]["last_online_real_time"])
             writer.fstring(p["players"][i]["player_info"]["player_name"])
+        # 如果存在原始数据，则写入原始数据字节序列
+        if "raw_data" in p:
+            writer.write(bytes(p["raw_data"]))
     encoded_bytes = writer.bytes()
     return encoded_bytes

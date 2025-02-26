@@ -11,6 +11,7 @@ WORK_BASE_TYPES = set(
         "EPalWorkableType::TransportItemInBaseCamp",
         "EPalWorkableType::ReviveCharacter",
         # "EPalWorkableType::CollectResource",
+        "EPalWorkableType::Booth",
         "EPalWorkableType::LevelObject",
         "EPalWorkableType::Repair",
         "EPalWorkableType::Defense",
@@ -107,7 +108,10 @@ def decode_bytes(
     # UPalWorkProgressTransformBase->SerializeProperties
     transform_type = reader.byte()
     data["transform"] = {"type": transform_type, "v2": 0}
-    if transform_type == 1:
+    if transform_type == 0:
+        data["transform"]["sub_type"] = reader.byte()
+        data["transform"]["map_object_instance_id"] = reader.guid()
+    elif transform_type == 1:
         data["transform"].update(reader.ftransform())
     elif transform_type == 2:
         data["transform"]["map_object_instance_id"] = reader.guid()
@@ -116,9 +120,7 @@ def decode_bytes(
         data["transform"]["instance_id"] = reader.guid()
     else:
         remaining_data = reader.read_to_end()
-        print(
-            f"Unknown EPalWorkTransformType, please report this: {transform_type}: {work_type}: {''.join(f'{b:02x}' for b in remaining_data)}"
-        )
+        #print(f"Unknown EPalWorkTransformType, please report this: {transform_type}: {work_type}: {''.join(f'{b:02x}' for b in remaining_data)}")
         data["transform"]["raw_data"] = [b for b in remaining_data]
 
     if not reader.eof():
@@ -231,7 +233,10 @@ def encode_bytes(p: dict[str, Any], work_type: str) -> bytes:
     # UPalWorkProgressTransformBase->SerializeProperties
     transform_type = p["transform"]["type"]
     writer.byte(transform_type)
-    if transform_type == 1:
+    if transform_type == 0:
+        writer.byte(p["transform"]["sub_type"])
+        writer.guid(p["transform"]["map_object_instance_id"])
+    elif transform_type == 1:
         # pre-v2 the transform was deserialised in the wrong order
         if "v2" not in p["transform"]:
             writer.vector_dict(p["transform"]["location"])
@@ -245,10 +250,8 @@ def encode_bytes(p: dict[str, Any], work_type: str) -> bytes:
         writer.guid(p["transform"]["guid"])
         writer.guid(p["transform"]["instance_id"])
     else:
-        print(
-            f"Unknown EPalWorkTransformType, please report this: {transform_type}: {work_type}"
-        )
-        writer.write(p["transform"]["raw_data"])
+        #print(f"Unknown EPalWorkTransformType, please report this: {transform_type}: {work_type}")
+        writer.write(bytes(p["transform"]["raw_data"]))
 
     encoded_bytes = writer.bytes()
     return encoded_bytes
