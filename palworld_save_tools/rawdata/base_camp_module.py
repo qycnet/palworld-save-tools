@@ -13,8 +13,8 @@ NO_OP_TYPES = [
     "EPalBaseCampModuleType::ItemStorages",
     "EPalBaseCampModuleType::FacilityReservation",
     "EPalBaseCampModuleType::ObjectMaintenance",
+    "EPalBaseCampModuleType::ItemStackInfo",  # 物品堆叠信息模块，可能用于提供关于物品堆叠的详细信息或管理堆叠物品
 ]
-
 
 def decode(
     reader: FArchiveReader, type_name: str, size: int, path: str
@@ -44,6 +44,9 @@ PASSIVE_EFFECT_ENUM = {
     0: "EPalBaseCampPassiveEffectType::None",
     1: "EPalBaseCampPassiveEffectType::WorkSuitability",
     2: "EPalBaseCampPassiveEffectType::WorkHard",
+    3: "EPalBaseCampPassiveEffectType::AllWorkSpeed",  # 所有工作速度被动效果，可能提高所有工作的执行速度
+    4: "EPalBaseCampPassiveEffectType::SanityDecreaseSuppressor",  # 理智下降抑制被动效果，可能减少由于长时间工作或压力导致的理智下降
+    5: "EPalBaseCampPassiveEffectType::EPalBaseCampPassiveEffectType_MAX",  # 枚举类型的最大值，通常用作边界值或检查枚举值是否有效的标志
 }
 
 
@@ -54,7 +57,9 @@ def module_passive_effect_reader(reader: FArchiveReader) -> dict[str, Any]:
         raise Exception(f"Unknown passive effect type {data['type']}")
     elif data["type"] == 2:
         data["work_hard_type"] = reader.byte()
-        data["unknown_trailer"] = [b for b in reader.read(4)]
+        # 从reader中读取接下来的12个字节作为未知数据（可能是保留字段或未来使用的字段）
+        # 并将这些数据以字节列表的形式存储在data字典中
+        data["unknown_trailer"] = [b for b in reader.read(12)]
     return data
 
 
