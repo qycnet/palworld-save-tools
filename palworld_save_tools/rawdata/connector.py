@@ -42,19 +42,12 @@ def decode_bytes(
     # We are guessing here, we don't have information about the type without mapping object names -> types
     # Stairs have 2 connectors (up and down),
     # Roofs have 4 connectors (front, back, right, left)
+    # 检查reader对象是否已到达文件末尾，如果没有，则执行以下操作：
+    # 从reader对象中读取剩余的所有字节，并将它们转换为一个整数列表
+    # 然后将这个整数列表存储在data字典的"unknown_data"键下
+    # 这些未知数据可能包含额外的信息或填充数据
     if not reader.eof():
-        data["other_connectors"] = []
-        while not reader.eof():
-            data["other_connectors"].append(
-                {
-                    "index": reader.byte(),
-                    "connect": reader.tarray(connect_info_item_reader),
-                }
-            )
-        if len(data["other_connectors"]) not in [2, 4]:
-            print(
-                f"Warning: unknown connector type with {len(data['other_connectors'])} connectors"
-            )
+        data["unknown_data"] = [int(b) for b in reader.read_to_end()]
     return data
 
 
@@ -76,9 +69,7 @@ def encode_bytes(p: dict[str, Any]) -> bytes:
     writer.i32(p["supported_level"])
     writer.byte(p["connect"]["index"])
     writer.tarray(connect_info_item_writer, p["connect"]["any_place"])
-    if "other_connectors" in p:
-        for other in p["other_connectors"]:
-            writer.byte(other["index"])
-            writer.tarray(connect_info_item_writer, other["connect"])
+    if "unknown_data" in p:
+        writer.write(bytes(p["unknown_data"]))
     encoded_bytes = writer.bytes()
     return encoded_bytes
