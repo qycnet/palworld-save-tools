@@ -57,6 +57,9 @@ PALWORLD_TYPE_HINTS: dict[str, str] = {
     ".worldSaveData.GuildExtraSaveDataMap.Key": "Guid",
     # 公会额外保存数据映射的值（Value）是结构体属性（StructProperty）
     ".worldSaveData.GuildExtraSaveDataMap.Value": "StructProperty",
+    ".worldSaveData.EnemyCampSaveData.EnemyCampStatusMap.Value.TreasureBoxInfoMapBySpawnerName.Value": "StructProperty",
+    ".worldSaveData.DungeonSaveData.DungeonSaveData.RewardSaveDataMap.Key": "Guid",
+    ".worldSaveData.DungeonSaveData.DungeonSaveData.RewardSaveDataMap.Value": "StructProperty",
 }
 
 PALWORLD_CUSTOM_PROPERTIES: dict[

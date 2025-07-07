@@ -46,6 +46,7 @@ def decode_bytes(
     # 从reader对象中读取剩余的所有字节，并将它们转换为一个整数列表
     # 然后将这个整数列表存储在data字典的"unknown_data"键下
     # 这些未知数据可能包含额外的信息或填充数据
+
     if not reader.eof():
         data["unknown_data"] = [int(b) for b in reader.read_to_end()]
     return data

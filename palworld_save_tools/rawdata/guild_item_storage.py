@@ -10,7 +10,6 @@ def decode(
     # 检查属性类型是否为ArrayProperty，如果不是，则抛出异常
     if type_name != "ArrayProperty":
         raise Exception(f"Expected ArrayProperty, got {type_name}")
-    
     # 使用reader对象的property方法读取属性数据
     # 该方法返回一个字典，其中包含属性的值和其他相关信息
     value = reader.property(type_name, size, path, nested_caller_path=path)
@@ -34,7 +33,10 @@ def decode_bytes(
     
     # 读取并返回包含容器ID的字典
     # 假设容器ID是一个GUID，用于唯一标识存储数据的容器
-    return {"container_id": reader.guid()}
+    data = {"container_id": reader.guid()}
+    if not reader.eof():
+        data["trailing_bytes"] = [int(b) for b in reader.read_to_end()]
+    return data
 
 # encode函数用于编码一个ArrayProperty类型的属性
 # 它接受一个FArchiveWriter对象、属性类型名称以及包含属性数据的字典作为参数
@@ -65,13 +67,13 @@ def encode_bytes(p: Optional[dict[str, Any]]) -> bytes:
         return b""
     
     # 创建一个FArchiveWriter对象，用于将数据编码为字节序列
+
     writer = FArchiveWriter()
-    
     # 写入容器ID（假设它是一个GUID）
     writer.guid(p["container_id"])
-    
     # 获取编码后的字节序列
+    if "trailing_bytes" in p:
+        writer.write(bytes(p["trailing_bytes"]))
     encoded_bytes = writer.bytes()
-    
     # 返回编码后的字节序列
     return encoded_bytes

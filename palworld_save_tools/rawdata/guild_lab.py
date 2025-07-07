@@ -47,8 +47,9 @@ def decode_bytes(
     
     # 使用reader对象的fstring方法读取当前研究的ID
     data["current_research_id"] = reader.fstring()
-    
     # 返回包含解码后实验室研究报告信息的字典
+    if not reader.eof():
+        data["trailing_bytes"] = [int(b) for b in reader.read_to_end()]
     return data
 
 # encode函数用于编码一个ArrayProperty类型的属性，该属性包含实验室研究报告的相关信息
@@ -83,6 +84,7 @@ def encode_bytes(p: Optional[dict[str, Any]]) -> bytes:
         return b""
     
     # 创建一个FArchiveWriter对象，用于将数据编码为字节序列
+
     writer = FArchiveWriter()
     
     # 使用writer对象的tarray方法和lab_research_rep_info_writer函数
@@ -93,7 +95,8 @@ def encode_bytes(p: Optional[dict[str, Any]]) -> bytes:
     writer.fstring(p["current_research_id"])
     
     # 获取编码后的字节序列
+    if "trailing_bytes" in p:
+        writer.write(bytes(p["trailing_bytes"]))
     encoded_bytes = writer.bytes()
-    
     # 返回编码后的字节序列
     return encoded_bytes

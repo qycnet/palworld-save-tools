@@ -55,6 +55,7 @@ def pal_item_booth_trade_info_read(reader: FArchiveReader) -> dict[str, Any]:
         "seller_player_uid": reader.guid(),
     }
 
+
 # pal_item_booth_trade_info_writer函数用于将交易摊位的信息写入FArchiveWriter对象
 # 它接受一个包含产品详情、成本详情以及卖家玩家UID的字典作为参数，不返回任何值
 def pal_item_booth_trade_info_writer(writer: FArchiveWriter, p: dict[str, Any]) -> None:
@@ -74,6 +75,7 @@ def pal_item_booth_trade_info_writer(writer: FArchiveWriter, p: dict[str, Any]) 
     writer.u32(p["cost"]["num"])
     # 写入卖家玩家的UID
     writer.guid(p["seller_player_uid"])
+
 
 # pal_pal_booth_trade_info_read函数用于从FArchiveReader对象中读取PAL交易摊位的信息
 # 它返回一个包含PAL ID、成本详情以及卖家玩家UID的字典
@@ -104,6 +106,7 @@ def pal_pal_booth_trade_info_read(reader: FArchiveReader) -> dict[str, Any]:
         "seller_player_uid": reader.guid(),
     }
 
+
 # pal_pal_booth_trade_info_writer函数用于将PAL交易摊位的信息写入FArchiveWriter对象
 # 它接受一个包含PAL ID、成本详情以及卖家玩家UID的字典作为参数，不返回任何值
 def pal_pal_booth_trade_info_writer(writer: FArchiveWriter, p: dict[str, Any]) -> None:
@@ -123,6 +126,7 @@ def pal_pal_booth_trade_info_writer(writer: FArchiveWriter, p: dict[str, Any]) -
     # 写入卖家玩家的UID
     writer.guid(p["seller_player_uid"])
 
+
 # lab_research_rep_info_read函数用于从FArchiveReader对象中读取实验室研究报告的信息
 # 它返回一个包含研究ID和工作量的字典
 def lab_research_rep_info_read(reader: FArchiveReader) -> dict[str, Any]:
@@ -132,6 +136,7 @@ def lab_research_rep_info_read(reader: FArchiveReader) -> dict[str, Any]:
         # 工作量，使用float方法从reader中读取
         "work_amount": reader.float(),
     }
+
 
 # lab_research_rep_info_writer函数用于将实验室研究报告的信息写入FArchiveWriter对象
 # 它接受一个包含研究ID和工作量的字典作为参数，不返回任何值
