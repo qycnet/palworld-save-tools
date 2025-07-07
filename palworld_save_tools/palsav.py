@@ -1,53 +1,36 @@
-import zlib
-MAGIC_BYTES = b'PlZ'
-def decompress_sav_to_gvas(data: bytes) -> tuple[bytes, int]:
-    uncompressed_len = int.from_bytes(data[0:4], byteorder="little")
-    compressed_len = int.from_bytes(data[4:8], byteorder="little")
-    magic_bytes = data[8:11]
-    save_type = data[11]
-    data_start_offset = 12
-    cnk_header = b""
-    if magic_bytes == b"CNK":
-        uncompressed_len = int.from_bytes(data[12:16], byteorder="little")
-        compressed_len = int.from_bytes(data[16:20], byteorder="little")
-        magic_bytes = data[20:23]
-        save_type = data[23]
-        cnk_header = data[:24]
-        data_start_offset = 24
-    if magic_bytes != MAGIC_BYTES:
-        raise Exception(f"Not a compressed Palworld save, found {magic_bytes} instead of {MAGIC_BYTES}")
-    if save_type not in [0x30, 0x31, 0x32]:
-        raise Exception(f"Unknown save type: {save_type}")
-    try:
-        if save_type == 0x31:
-            if compressed_len != len(data) - data_start_offset:
-                raise Exception(f"Incorrect compressed length: {compressed_len}")
-            uncompressed_data = zlib.decompress(data[data_start_offset:])
-        elif save_type == 0x32:
-            first_decompressed = zlib.decompress(data[data_start_offset:])
-            if compressed_len != len(first_decompressed):
-                raise Exception(f"Incorrect compressed length after first decompression: {compressed_len}")
-            uncompressed_data = zlib.decompress(first_decompressed)
-        else:
-            raise Exception(f"Unhandled compression type: {save_type}")
-        if uncompressed_len != len(uncompressed_data):
-            raise Exception(f"Incorrect uncompressed length: {uncompressed_len}")
-        return uncompressed_data, save_type
-    except Exception as e:
-        print(f"Exception encountered: {e}")
-        raise
-def compress_gvas_to_sav(data: bytes, save_type: int, cnk_header: bytes = None) -> bytes:
-    uncompressed_len = len(data)
-    compressed_data = zlib.compress(data)
-    compressed_len = len(compressed_data)
-    if save_type == 0x32:
-        compressed_data = zlib.compress(compressed_data)
-    result = bytearray()
-    if cnk_header:
-        result.extend(cnk_header)
-    result.extend(uncompressed_len.to_bytes(4, byteorder="little"))
-    result.extend(compressed_len.to_bytes(4, byteorder="little"))
-    result.extend(MAGIC_BYTES)
-    result.extend(bytes([save_type]))
-    result.extend(compressed_data)
-    return bytes(result)
+from palworld_save_tools.compressor import Compressor
+from palworld_save_tools.compressor.oozlib import OozLib
+from palworld_save_tools.compressor.zlib import Zlib
+from palworld_save_tools.compressor.enums import SaveType
+
+compressor = Compressor()
+oozlib = OozLib()
+z_lib = Zlib()
+
+
+def decompress_sav_to_gvas(data: bytes, zlib: bool = False) -> tuple[bytes, int]:
+    format = compressor.check_sav_format(data)
+
+    if format is None:
+        raise Exception("Unknown save format")
+
+    match format:
+        case SaveType.PLZ | SaveType.CNK:
+            return z_lib.decompress(data)
+        case SaveType.PLM:
+            return oozlib.decompress(data)
+        case _:
+            raise Exception("Unknown save format")
+
+
+def compress_gvas_to_sav(data: bytes, save_type: int, zlib: bool = False) -> bytes:
+    format = compressor.check_savtype_format(save_type)
+
+    if format is None:
+        raise Exception("Unknown save type format")
+
+    match format:
+        case SaveType.PLZ | SaveType.CNK:
+            return z_lib.compress(data, save_type)
+        case SaveType.PLM:
+            return oozlib.compress(data, save_type)
